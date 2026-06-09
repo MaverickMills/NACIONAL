@@ -1,0 +1,32 @@
+{% extends "base.html"%} <!--Construye esta página usando base.html como plantilla principal-->
+
+{% block contenido%}
+
+<h1>Importar Excel</h1>
+
+<form
+    method="post"
+    enctype="multipart/form-data" >   <!--permite enviar archivos-->
+
+    <div class="mb-3">
+
+        <label class="form-label">
+
+            Seleccione archivo excel
+
+        </label>
+
+        <input type="file"
+               name="archivo"
+               class="form-control"
+               required>
+    </div>
+    
+    <button
+        class="btn btn-primary"
+        type="submit">
+
+        Importar
+    </button>
+</form>
+{% endblock %}
