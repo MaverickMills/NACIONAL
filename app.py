@@ -29,7 +29,15 @@ def inicio():
 
 @app.route("/dashboard")
 def dashboard():
+
     return """Dashboard Packing List"""
+
+
+@app.route("/registros")
+def registros():
+    registros = Consolidado.query.order_by(Consolidado.id.desc()).all()
+
+    return render_template("registros.html", registros=registros)
 
 
 @app.route("/importar", methods=["GET", "POST"])

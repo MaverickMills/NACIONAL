@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Registros Importados</h2>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>OC</th>
+                <th>Factura</th>
+                <th>Destino</th>
+                <th>Proveedor</th>
+                <th>Bultos</th>
+                <th>Unidades</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in registros %}
+            <tr>
+                <td>{{ registro.id }}</td>
+                <td>{{ registro.oc }}</td>
+                <td>{{ registro.factura }}</td>
+                <td>{{ registro.destino }}</td>
+                <td>{{ registro.proveedor }}</td>
+                <td>{{ registro.bultos }}</td>
+                <td>{{ registro.unidades }}</td>
+                <td>{{ registro.estado }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
