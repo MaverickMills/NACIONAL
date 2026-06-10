@@ -1,11 +1,8 @@
-from flask import (
-    Flask,
-    render_template,
-    request,
-)  # request permite acceder a lo que envia el navegador
+from flask import Flask, render_template, request
 from config import Config
-from models import Consolidado, Proveedor, db
+from models import Consolidado, HistorialCarga, Proveedor, db
 from datetime import datetime
+
 import pandas as pd
 import os  # Permite trabajar con archivos y carpetas
 
@@ -176,9 +173,20 @@ def importar():
 
                         lista_conflictos.append(f"""
                           OC: {fila["OC"]} |
-                        EXISTENTE: {registro_oc.proveedor} |
-                        RECIBIDO: {fila["PROVEEDOR"]}
-                        """)
+                            PROVEEDOR EXISTENTE: {registro_oc.proveedor} |
+                            PROVEEDOR RECIBIDO: {fila["PROVEEDOR"]}
+                            """)
+                        errores_excel.append(
+                            {
+                                "Tipo Error": "CONFLICTO",
+                                "OC": fila["OC"],
+                                "FACTURA": fila["FACTURA"],
+                                "DESTINO": fila["DESTINO"],
+                                "PROVEEDOR": fila["PROVEEDOR"],
+                                "MOTIVO": f"La OC pertenece a {registro_oc.proveedor}",
+                            }
+                        )
+                        print("conflicto agregado a excel")
                         continue
 
                 nuevo = Consolidado(
@@ -205,6 +213,17 @@ def importar():
             continue
 
         db.session.commit()
+        historial = HistorialCarga(
+            nombre_archivo=archivo.filename,
+            registro_guardados=guardados,
+            duplicados=duplicados,
+            conflictos=conflictos,
+            errores=errores,
+            fecha_carga=datetime.now(),
+        )
+        db.session.add(historial)
+        db.session.commit()
+
         if errores_excel:
 
             df_errores = pd.DataFrame(errores_excel)

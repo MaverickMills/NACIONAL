@@ -77,7 +77,7 @@ class Consolidado(db.Model):
     factura = db.Column(db.String(50))
 
     # Tienda de destino
-    destino = db.Column(db.String(20),nullable=False)
+    destino = db.Column(db.String(20), nullable=False)
 
     # Nombre de Proveedor
     proveedor = db.Column(db.String(150))
@@ -88,23 +88,35 @@ class Consolidado(db.Model):
     # Cantidad de unidades
     unidades = db.Column(db.String(50), nullable=False)
 
-    #Tipo de carga = nacional,tester,mkt,etc
-    tipo_carga = db.Column(db.String(50),nullable=False,default="NACIONAL")
+    # Tipo de carga = nacional,tester,mkt,etc
+    tipo_carga = db.Column(db.String(50), nullable=False, default="NACIONAL")
 
-    #etiqueta
+    # etiqueta
     etiqueta = db.Column(db.String(150))
 
-    #observacion: comentarios posteriores
+    # observacion: comentarios posteriores
     observacion = db.Column(db.String(500))
 
-    #estado
-    estado = db.Column(db.String(20),nullable=False,default="PENDIENTE")
+    # estado
+    estado = db.Column(db.String(20), nullable=False, default="PENDIENTE")
 
-    #origen NACIONAL o EXTERNO
-    origen_archivo = db.Column(db.String(50),nullable=False)
+    # origen NACIONAL o EXTERNO
+    origen_archivo = db.Column(db.String(50), nullable=False)
 
-    #nombre de archivo
+    # nombre de archivo
     nombre_archivo = db.Column(db.String(255))
 
     # Fecha de carga al sistema
     fecha_carga = db.Column(db.DateTime)
+
+
+class HistorialCarga(db.Model):
+    __tablename__ = "historial_cargas"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_archivo = db.Column(db.String(255), nullable=False)
+    registro_guardados = db.Column(db.Integer, nullable=False)
+    duplicados = db.Column(db.Integer, nullable=False)
+    conflictos = db.Column(db.Integer, nullable=False)
+    errores = db.Column(db.Integer, nullable=False)
+    fecha_carga = db.Column(db.DateTime, nullable=False)
