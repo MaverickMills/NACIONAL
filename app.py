@@ -134,6 +134,8 @@ def importar():
         lista_conflictos = []
         lista_errores = []
 
+        errores_excel = []
+
         for _, fila in df.iterrows():
             try:
 
@@ -147,10 +149,21 @@ def importar():
                 if existe:
                     duplicados += 1
                     lista_duplicados.append(f"""
-                    OC: {fila["OC"]} |
-                    FACTURA: {fila["FACTURA"]} |
-                    DESTINO: {fila["DESTINO"]}
-                    """)
+                        OC: {fila["OC"]} |
+                        FACTURA: {fila["FACTURA"]} |
+                        DESTINO: {fila["DESTINO"]}
+                        """)
+
+                    errores_excel.append(
+                        {
+                            "Tipo Error": " DUPLICADO",
+                            "OC": fila["OC"],
+                            "FACTURA": fila["FACTURA"],
+                            "DESTINO": fila["DESTINO"],
+                            "PROVEEDOR": fila["PROVEEDOR"],
+                            "MOTIVO": "Registro ya existe en la base de datos",
+                        }
+                    )
                     continue
 
                 if fila["OC"] != "S/OC":
@@ -192,6 +205,13 @@ def importar():
             continue
 
         db.session.commit()
+        if errores_excel:
+
+            df_errores = pd.DataFrame(errores_excel)
+
+            ruta_errores = os.path.join("uploads", "errores_importacion.xlsx")
+
+            df_errores.to_excel(ruta_errores, index=False)
 
         duplicados_html = "<br>".join(lista_duplicados)
         conflictos_html = "<br>".join(lista_conflictos)
@@ -212,6 +232,8 @@ def importar():
         <hr>
         <h3>Detalle Errores</h3>
         {errores_html}
+        <hr>
+        <p><b>Archivo de errores generado: </b> uploads/errores_importacion.xlsx </p>
         """
     return render_template("importar_excel.html")
 
