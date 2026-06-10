@@ -1,0 +1,33 @@
+{%- extends "base.html" -%}
+{%- block contenido -%}
+
+<div class="container">
+    <h2>Editar Registro</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label>OC</label>
+            <input type="text" name="oc" class="form-control" value="{{ registro.oc }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label>Factura</label>
+            <input type="text" name="factura" class="form-control" value="{{ registro.factura }}">
+        </div>
+        <div class="mb-3">
+            <label>Destino</label>
+            <input type="text" name="destino" class="form-control" value="{{ registro.destino }}">
+        </div>
+        <div class="mb-3">
+            <label>PROVEEDOR</label>
+            <input type="text" name="proveedor" class="form-control" value="{{ registro.proveedor }}">
+        </div>
+        <div class="mb-3">
+            <label>ESTADO</label>
+            <select name="estado" class="form-select">
+                <option value="PENDIENTE"{% if registro.estado == 'PENDIENTE' %} selected {% endif %}>PENDIENTE</option>
+                <option value="DESPACHADO"{% if registro.estado == 'DESPACHADO' %} selected {% endif %}>DESPACHADO</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+    </form>
+</div>
+{%- endblock -%}

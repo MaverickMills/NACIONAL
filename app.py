@@ -65,6 +65,24 @@ def registros():
     )
 
 
+@app.route("/editar/<int:id>", methods=["GET", "POST"])
+def editar(id):
+    registro = Consolidado.query.get_or_404(id)
+    if request.method == "POST":
+        registro.factura = request.form["factura"]
+        registro.destino = request.form["destino"]
+        registro.proveedor = request.form["proveedor"]
+        registro.estado = request.form["estado"]
+
+        db.session.commit()
+
+        return """Registro actualizado correctamente
+            <br><br>
+            <a href="/registros">Volver</a>
+        """
+    return render_template("editar.html", registro=registro)
+
+
 @app.route("/importar", methods=["GET", "POST"])
 def importar():
 
