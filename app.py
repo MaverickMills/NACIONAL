@@ -35,9 +35,34 @@ def dashboard():
 
 @app.route("/registros")
 def registros():
-    registros = Consolidado.query.order_by(Consolidado.id.desc()).all()
+    oc = request.args.get("oc", "")
+    factura = request.args.get("factura", "")
+    destino = request.args.get("destino", "")
+    proveedor = request.args.get("proveedor", "")
+    estado = request.args.get("estado", "")
 
-    return render_template("registros.html", registros=registros)
+    consulta = Consolidado.query
+    if oc:
+        consulta = consulta.filter(Consolidado.oc.contains(oc))
+    if factura:
+        consulta = consulta.filter(Consolidado.factura.contains(factura))
+    if destino:
+        consulta = consulta.filter(Consolidado.destino.contains(destino))
+    if proveedor:
+        consulta = consulta.filter(Consolidado.proveedor.contains(proveedor))
+    if estado:
+        consulta = consulta.filter(Consolidado.estado.contains(estado))
+
+    registros = consulta.order_by(Consolidado.id.desc()).all()
+    return render_template(
+        "registros.html",
+        registros=registros,
+        oc=oc,
+        factura=factura,
+        destino=destino,
+        proveedor=proveedor,
+        estado=estado,
+    )
 
 
 @app.route("/importar", methods=["GET", "POST"])
