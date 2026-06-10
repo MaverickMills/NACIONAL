@@ -129,71 +129,89 @@ def importar():
         guardados = 0
         duplicados = 0
         conflictos = 0
+        errores = 0
         lista_duplicados = []
         lista_conflictos = []
+        lista_errores = []
 
         for _, fila in df.iterrows():
-            existe = Consolidado.query.filter_by(
-                oc=fila["OC"],
-                factura=fila["FACTURA"],
-                destino=fila["DESTINO"],
-                proveedor=fila["PROVEEDOR"],
-            ).first()
+            try:
 
-            if existe:
-                duplicados += 1
-                lista_duplicados.append(f"""
-                OC: {fila["OC"]} |
-                FACTURA: {fila["FACTURA"]} |
-                DESTINO: {fila["DESTINO"]}
-                """)
-                continue
+                existe = Consolidado.query.filter_by(
+                    oc=fila["OC"],
+                    factura=fila["FACTURA"],
+                    destino=fila["DESTINO"],
+                    proveedor=fila["PROVEEDOR"],
+                ).first()
 
-            if fila["OC"] != "S/OC":
-
-                registro_oc = Consolidado.query.filter_by(oc=fila["OC"]).first()
-
-                if registro_oc and registro_oc.proveedor != fila["PROVEEDOR"]:
-
-                    conflictos += 1
-
-                    lista_conflictos.append(f"""
+                if existe:
+                    duplicados += 1
+                    lista_duplicados.append(f"""
                     OC: {fila["OC"]} |
-                    EXISTENTE: {registro_oc.proveedor} |
-                    RECIBIDO: {fila["PROVEEDOR"]}
+                    FACTURA: {fila["FACTURA"]} |
+                    DESTINO: {fila["DESTINO"]}
                     """)
                     continue
 
-            nuevo = Consolidado(
-                oc=fila["OC"],
-                factura=fila["FACTURA"],
-                destino=fila["DESTINO"],
-                proveedor=fila["PROVEEDOR"],
-                bultos=fila["BULTOS"],
-                unidades=fila["UNIDADES"],
-                tipo_carga="NACIONAL",
-                origen_archivo="NACIONAL",
-                nombre_archivo=archivo.filename,
-                fecha_carga=datetime.now(),
-            )
-            db.session.add(nuevo)
-            guardados += 1
+                if fila["OC"] != "S/OC":
+
+                    registro_oc = Consolidado.query.filter_by(oc=fila["OC"]).first()
+
+                    if registro_oc and registro_oc.proveedor != fila["PROVEEDOR"]:
+
+                        conflictos += 1
+
+                        lista_conflictos.append(f"""
+                          OC: {fila["OC"]} |
+                        EXISTENTE: {registro_oc.proveedor} |
+                        RECIBIDO: {fila["PROVEEDOR"]}
+                        """)
+                        continue
+
+                nuevo = Consolidado(
+                    oc=fila["OC"],
+                    factura=fila["FACTURA"],
+                    destino=fila["DESTINO"],
+                    proveedor=fila["PROVEEDOR"],
+                    bultos=fila["BULTOS"],
+                    unidades=fila["UNIDADES"],
+                    tipo_carga="NACIONAL",
+                    origen_archivo="NACIONAL",
+                    nombre_archivo=archivo.filename,
+                    fecha_carga=datetime.now(),
+                )
+                db.session.add(nuevo)
+                guardados += 1
+            except Exception as e:
+                errores += 1
+                lista_errores.append(f"""
+                                 OC: {fila["OC"],""} |
+                                 FACTURA: {fila["FACTURA"],""} |
+                                 ERROR: {str(e)}
+                                 """)
+            continue
+
         db.session.commit()
 
         duplicados_html = "<br>".join(lista_duplicados)
         conflictos_html = "<br>".join(lista_conflictos)
+        errores_html = "<br>".join(lista_errores)
 
         return f"""
         <h2>Carga Finalizada</h2>
         <p><b>Registros guardados: </b> {guardados} </p>
         <p><b>Duplicados detectados: </b> {duplicados} </p>
         <p><b>Conflictos proveedor: </b> {conflictos} </p>
+        <p><b>Errores: </b> {errores} </p>
         <hr>
         <h3>Detalle duplicados</h3>
         {duplicados_html}
         <hr>
         <h3>Detalle Conflictos OC - Proveedor</h3>
         {conflictos_html}
+        <hr>
+        <h3>Detalle Errores</h3>
+        {errores_html}
         """
     return render_template("importar_excel.html")
 
