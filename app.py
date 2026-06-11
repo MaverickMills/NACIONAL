@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from sqlalchemy import distinct
 from config import Config
 from models import Consolidado, HistorialCarga, Proveedor, db
 from datetime import datetime
@@ -63,6 +64,43 @@ def registros():
         proveedor=proveedor,
         estado=estado,
     )
+
+
+@app.route("/despachos", methods=["GET", "POST"])
+def despachos():
+    if request.method == "POST":
+        tiendas = request.form.getlist("tiendas")
+        fecha_despacho = request.form["fecha_despacho"]
+        registros = Consolidado.query.filter(
+            Consolidado.destino.in_(tiendas),
+            Consolidado.estado == "PENDIENTE",
+            Consolidado.eliminado == False,
+        ).all()
+
+        cantidad = 0
+        for registro in registros:
+            registro.estado = "DESPACHADO"
+            registro.fecha_despacho = datetime.strptime(fecha_despacho, "%Y-%m-%d")
+
+            cantidad += 1
+
+        db.session.commit()
+        return f"""
+        <h2>Despacho Realizado</h2>
+        <p>
+        <b>Tiendas seleccionadas: </b> {len(tiendas)}</p>
+        <p>
+        <b>Registros actualizados </b> {cantidad}</p>
+
+        <a href="/despachos">Volver</a>
+        """
+    tiendas = (
+        db.session.query(Consolidado.destino)
+        .filter(Consolidado.estado == "PENDIENTE", Consolidado.eliminado == False)
+        .distinct()
+        .all()
+    )
+    return render_template("despachos.html", tiendas=tiendas)
 
 
 @app.route("/editar/<int:id>", methods=["GET", "POST"])

@@ -115,6 +115,9 @@ class Consolidado(db.Model):
     # fecha de eliminación
     fecha_eliminacion = db.Column(db.DateTime)
 
+    # fecha de despacho de la tienda
+    fecha_despacho = db.Column(db.DateTime)
+
 
 class HistorialCarga(db.Model):
     __tablename__ = "historial_cargas"

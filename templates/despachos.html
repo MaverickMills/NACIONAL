@@ -1,0 +1,20 @@
+{%- extends "base.html" -%} 
+{%- block contenido -%}
+<h2>Despacho Masivo</h2>
+<form method="POST" action="/despachos">
+    <div class="mb-3"
+        <label class="form-label">Fecha Despacho</label>
+        <input type="date" name="fecha_despacho" class="form-control" required>
+    <h4>Tiendas Pendientes</h4>
+    {% for tienda in tiendas %}
+    <div class=""form-check">
+        <input class=""form-check-input" type="checkbox" name="tiendas" value="{{ tienda[0]}}">
+        <label class=""form-check-label">
+            {{ tienda[0]}}
+        </label>
+    </div>
+    {% endfor %}
+    <br>
+    <button type=""submit" class="btn btn-succcess">Despachar Seleccionadas</button>
+</form>
+{%- endblock -%}
