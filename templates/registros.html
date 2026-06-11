@@ -57,7 +57,10 @@
                 <td>{{ registro.bultos }}</td>
                 <td>{{ registro.unidades }}</td>
                 <td>{{ registro.estado }}</td>
-                <td><a href="/editar/{{ registro.id }}" class="btn btn-warning btn-sm">Editar</a></td>
+                <td>
+                    <a href="/editar/{{ registro.id }}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="/eliminar/{{ registro.id }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que quieres eliminar este registro?')">Eliminar</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

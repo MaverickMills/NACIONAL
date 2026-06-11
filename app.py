@@ -41,7 +41,7 @@ def registros():
     proveedor = request.args.get("proveedor", "")
     estado = request.args.get("estado", "")
 
-    consulta = Consolidado.query
+    consulta = Consolidado.query.filter_by(eliminado=False)
     if oc:
         consulta = consulta.filter(Consolidado.oc.contains(oc))
     if factura:
@@ -81,6 +81,18 @@ def editar(id):
             <a href="/registros">Volver</a>
         """
     return render_template("editar.html", registro=registro)
+
+
+@app.route("/eliminar/<int:id>")
+def eliminar(id):
+    registro = Consolidado.query.get_or_404(id)
+    registro.eliminado = True
+    registro.fecha_eliminacion = datetime.now()
+    db.session.commit()
+    return """Registro eliminado correctamente
+        <br><br>
+        <a href="/registros">Volver al listado</a>
+    """
 
 
 @app.route("/importar", methods=["GET", "POST"])

@@ -109,6 +109,12 @@ class Consolidado(db.Model):
     # Fecha de carga al sistema
     fecha_carga = db.Column(db.DateTime)
 
+    # historial de eliminados
+    eliminado = db.Column(db.Boolean, nullable=False, default=False)
+
+    # fecha de eliminación
+    fecha_eliminacion = db.Column(db.DateTime)
+
 
 class HistorialCarga(db.Model):
     __tablename__ = "historial_cargas"
