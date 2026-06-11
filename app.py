@@ -103,6 +103,36 @@ def despachos():
     return render_template("despachos.html", tiendas=tiendas)
 
 
+@app.route("/revertir_despachos", methods=["GET", "POST"])
+def revertir_despachos():
+    if request.method == "POST":
+        tiendas = request.form.getlist("tiendas")
+        fecha_despacho = request.form["fecha_despacho"]
+        fecha = datetime.strptime(fecha_despacho, "%Y-%m-%d").date()
+        registros = Consolidado.query.filter(
+            Consolidado.destino.in_(tiendas), Consolidado.estado == "DESPACHADO"
+        ).all()
+        cantidad = 0
+        for registro in registros:
+            if registro.fecha_despacho and registro.fecha_despacho.date() == fecha:
+                registro.estado = "PENDIENTE"
+                registro.fecha_despacho = None
+                cantidad += 1
+        db.session.commit()
+        return f"""
+        <h2>Reversa completada</h2>
+        <p>Registros afectados: {cantidad}</p>
+        <a href="/revertir_despachos">Volver</a>
+        """
+    tiendas = (
+        db.session.query(Consolidado.destino)
+        .filter(Consolidado.estado == "DESPACHADO")
+        .distinct()
+        .all()
+    )
+    return render_template("revertir_despachos.html", tiendas=tiendas)
+
+
 @app.route("/editar/<int:id>", methods=["GET", "POST"])
 def editar(id):
     registro = Consolidado.query.get_or_404(id)
