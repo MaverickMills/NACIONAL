@@ -95,6 +95,25 @@ def eliminar(id):
     """
 
 
+@app.route("/actualizar_estado", methods=["POST"])
+def actualizar_estado():
+    ids = request.form.getlist("ids")
+    actualizados = 0
+    for id_registro in ids:
+        registro = Consolidado.query.get(int(id_registro))
+
+        if registro:
+            registro.estado = "DESPACHADO"
+            actualizados += 1
+    db.session.commit()
+    return f"""
+        <h2>Actualizacion completada</h2>
+        Registros actualizados: {actualizados}
+        <br><br>
+        <a href="/registros">Volver al listado</a>
+    """
+
+
 @app.route("/importar", methods=["GET", "POST"])
 def importar():
 
