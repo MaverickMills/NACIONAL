@@ -27,6 +27,15 @@
                 <option value="DESPACHADO"{% if registro.estado == 'DESPACHADO' %} selected {% endif %}>DESPACHADO</option>
             </select>
         </div>
+        <div class="mb-3"
+            <label>FECHA DESPACHO</label>
+            <input
+                type="date"
+                name="fecha_despacho"
+                class="form-control"
+                value="{% if registro.fecha_despacho %}{{ registro.fecha_despacho.strftime('%Y-%m-%d')}} {% endif %}"
+            >
+        </div>
         <button type="submit" class="btn btn-success">Guardar</button>
     </form>
 </div>

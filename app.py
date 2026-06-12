@@ -165,6 +165,13 @@ def editar(id):
         registro.destino = request.form["destino"]
         registro.proveedor = request.form["proveedor"]
         registro.estado = request.form["estado"]
+        fecha_despacho = request.form.get("fecha_despacho")
+
+        if registro.estado == "DESPACHADO":
+            if fecha_despacho:
+                registro.fecha_despacho = datetime.strptime(fecha_despacho, "%Y-%m-%d")
+        else:
+            registro.fecha_despacho = None
 
         db.session.commit()
 
