@@ -168,8 +168,16 @@ def editar(id):
         fecha_despacho = request.form.get("fecha_despacho")
 
         if registro.estado == "DESPACHADO":
-            if fecha_despacho:
-                registro.fecha_despacho = datetime.strptime(fecha_despacho, "%Y-%m-%d")
+            if not fecha_despacho:
+                return """
+                Error: Debe indicar una fecha de despacho.
+                <br><br>
+
+                <a href ="javascript:history.black()">
+                Volver
+                </a>
+                """
+            registro.fecha_despacho = datetime.strptime(fecha_despacho, "%Y-%m-%d")
         else:
             registro.fecha_despacho = None
 
