@@ -2,30 +2,53 @@
 {% block contenido %}
 
 <h2>Revertir Despachos</h2>
-
 <form method="POST">
     <div class="mb-3">
         <label class="form-label">Fecha Despacho</label>
-        <input type="date" name="fecha_despacho" class="form-control" required>
+        <input
+            type="date"
+            name="fecha_despacho"
+            class="form-control"
+            value="{{ fecha_buscada }}"
+            required
+        >
     </div>
-    <h4>Tiendas Despachadas</h4>
-    {% for tienda in tiendas %}
-    <div class="form-check">
-        <input class="checkbox" class="form-check-input" name="tiendas" value="{{ tienda[0] }}">
-        <label class="form-check-label">
-            {{ tienda[0] }} 
-        </label>
-    </div>
-    {%endfor %}
-
-    <br>
-
     <button
         type="submit"
-        class="btn btn-warning"
-        onclick="return confirm('¿Deseas volver estos registros a PENDIENTE?')"
+        name="accion"
+        value="buscar"
+        class="btn btn-primary"
     >
-        Revertir
+        Buscar
     </button>
+    {% if tiendas %}
+
+        <hr>
+        <h4>Tiendas encontradas</h4>
+        {% for tienda in tiendas%}
+            <div class=""form-check">
+                <input
+                    type="checkbox"
+                    class="form-check.input"
+                    name="tiendas"
+                    value="{{ tienda }}"
+                >
+                <label class=""form-check-label">
+                    {{ tienda }}
+                </label>
+            </div>
+        {% endfor %}
+
+        <br>
+        <button
+            type="submit"
+            name="accion"
+            value="revertir"
+            class="btn btn-warning"
+            onclick="return confirm('¿Deseas volver estos registros a PENDIENTES')"
+        >
+            Revertir Seleccionados
+    </button>
+    {% endif %}
 </form>
-{% endblock %}
+{% endblock%}

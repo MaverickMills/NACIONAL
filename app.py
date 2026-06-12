@@ -105,32 +105,56 @@ def despachos():
 
 @app.route("/revertir_despachos", methods=["GET", "POST"])
 def revertir_despachos():
+    tiendas = []
+    fecha_buscada = ""
+
     if request.method == "POST":
-        tiendas = request.form.getlist("tiendas")
-        fecha_despacho = request.form["fecha_despacho"]
-        fecha = datetime.strptime(fecha_despacho, "%Y-%m-%d").date()
-        registros = Consolidado.query.filter(
-            Consolidado.destino.in_(tiendas), Consolidado.estado == "DESPACHADO"
-        ).all()
-        cantidad = 0
-        for registro in registros:
-            if registro.fecha_despacho and registro.fecha_despacho.date() == fecha:
-                registro.estado = "PENDIENTE"
-                registro.fecha_despacho = None
-                cantidad += 1
-        db.session.commit()
-        return f"""
-        <h2>Reversa completada</h2>
-        <p>Registros afectados: {cantidad}</p>
-        <a href="/revertir_despachos">Volver</a>
-        """
-    tiendas = (
-        db.session.query(Consolidado.destino)
-        .filter(Consolidado.estado == "DESPACHADO")
-        .distinct()
-        .all()
+        accion = request.form.get("accion")
+        fecha_buscada = request.form["fecha_despacho"]
+        fecha = datetime.strptime(fecha_buscada, "%Y-%m-%d").date()
+
+        # BUSCAR TIENDAS
+
+        if accion == "buscar":
+
+            registros = Consolidado.query.filter(
+                Consolidado.estado == "DESPACHADO"
+            ).all()
+
+            destinos = set()
+
+            for registro in registros:
+                if registro.fecha_despacho and registro.fecha_despacho.date() == fecha:
+                    destinos.add(registro.destino)
+            tiendas = sorted(list(destinos))
+
+        # REVERTIR
+        elif accion == "revertir":
+            tiendas_seleccionadas = request.form.getlist("tiendas")
+
+            registros = Consolidado.query.filter(
+                Consolidado.estado == "DESPACHADO",
+                Consolidado.destino.in_(tiendas_seleccionadas),
+            ).all()
+
+            cantidad = 0
+
+            for registro in registros:
+                if registro.fecha_despacho and registro.fecha_despacho.date() == fecha:
+                    registro.estado = "PENDIENTE"
+                    registro.fecha_despacho = None
+
+                    cantidad += 1
+            db.session.commit()
+
+            return f"""
+            <h2>Reversa Completada</h2>
+            <p>Registro afectados: {cantidad}</p>
+            <a href="/revertir_despachos"></a>
+            """
+    return render_template(
+        "revertir_despachos.html", tiendas=tiendas, fecha_buscada=fecha_buscada
     )
-    return render_template("revertir_despachos.html", tiendas=tiendas)
 
 
 @app.route("/editar/<int:id>", methods=["GET", "POST"])
