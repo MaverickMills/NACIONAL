@@ -45,6 +45,7 @@
                 <th>Bultos</th>
                 <th>Unidades</th>
                 <th>Estado</th>
+                <th>Fecha Despacho</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -59,6 +60,13 @@
                 <td>{{ registro.proveedor }}</td>
                 <td>{{ registro.bultos }}</td>
                 <td>{{ registro.unidades }}</td>
+                <td>
+                    {% if registro.fecha_despacho %}
+                        {{ registro.fecha_despacho.strftime('%d-%m-%Y') }}
+                    {% else%}
+                        -
+                    <{% endif%}
+                </td>
                 <td>{{ registro.estado }}</td>
                 <td>
                     <a href="/editar/{{ registro.id }}" class="btn btn-warning btn-sm">Editar</a>
