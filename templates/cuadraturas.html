@@ -2,8 +2,6 @@
 {% block contenido %}
 
 <h2>Cuadraturas</h2>
-<a href="/crear_cuadratura" class="btn btn-primary mb-3">Nueva Cuadratura</a>
-
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -12,6 +10,8 @@
             <th>Estado</th>
             <th>Fecha</th>
             <th>Fecha Carga Archivo</th>
+            <th>Inicio</th>
+            <th>Fin</th>
             <th>Acciones</th>
             
         </tr>
@@ -22,16 +22,17 @@
             <td>{{ c.id }}</td>
             <td>{{ c.nombre_archivo }}</td>
             <td>{{ c.estado }}</td>
-            <td>{{ c.fecha_cuadratura.strftime('%d-%m-%Y %H:%M') }}</td>
+            <td>{{ c.fecha_cuadratura.strftime('%d-%m-%Y%T%H:%M') }}</td>
             <td>{% if c.fecha_carga_archivo %}
-                    {{ c.fecha_carga_archivo.strftime('%d-%m-%Y %H:%M') }}
+                    {{ c.fecha_carga_archivo.strftime('%d-%m-%Y%T%H:%M') }}
                 {% else %}
                     -
                 {% endif %}
 
             </td>
+            <td> {{ c.hora_inicio or "-" }} </td>
+            <td> {{ c.hora_fin or "-" }} </td>
             <td><a href="/editar_cuadratura/{{ c.id }}" class="btn btn-warning btn.sm">Editar</a></td>
-            
         </tr>
         {% endfor %}
     </tbody>

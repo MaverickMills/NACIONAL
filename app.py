@@ -1,13 +1,18 @@
-from calendar import c
-
 from flask import Flask, render_template, request
-from sqlalchemy import distinct
+from werkzeug.utils import secure_filename
 from config import Config
 from models import Consolidado, HistorialCarga, Proveedor, db, Cuadratura
 from datetime import datetime
 
 import pandas as pd
 import os  # Permite trabajar con archivos y carpetas
+
+ALLOWED_EXTENSIONS = {"xls", "xlsx"}
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # crea aplicacion
 app = Flask(__name__)
@@ -258,11 +263,25 @@ def editar_cuadratura(id):
         cuadratura.responsable = request.form["responsable"]
         cuadratura.observacion = request.form["observacion"]
         cuadratura.estado = request.form["estado"]
+        hora_inicio = request.form.get("hora_inicio")
+        hora_fin = request.form.get("hora_fin")
+
+        if hora_inicio:
+            cuadratura.hora_inicio = request.form.get("hora_inicio")
+
+        if hora_fin:
+            cuadratura.hora_fin = request.form.get("hora_fin")
+
+        if cuadratura.hora_fin:
+            cuadratura.estado = "CERRADA"
+        else:
+            cuadratura.estado = "ABIERTA"
+
         db.session.commit()
         return """
         Cuadratura actualizada
         <br><br>
-        <a href="/cuadraturas>Volver</a>
+        <a href="/cuadraturas">Volver</a>
         """
     return render_template("editar_cuadratura.html", cuadratura=cuadratura)
 
@@ -273,10 +292,18 @@ def importar():
     if request.method == "POST":
 
         # Obtener archivo enviado desde el formulario
-        archivo = request.files["archivo"]
+        archivo = request.files.get("archivo")
 
-        # Construir ruta donde se guardará
-        ruta_archivo = os.path.join("uploads", archivo.filename)
+        if not archivo or archivo.filename == "":
+            return "ERROR: No se seleccionó ningún archivo"
+
+        if not allowed_file(archivo.filename):
+            return "ERROR: Formato de archivo no válido"
+
+        # Preparar carpeta y nombre seguro
+        os.makedirs("uploads", exist_ok=True)
+        nombre_archivo_seguro = secure_filename(archivo.filename)
+        ruta_archivo = os.path.join("uploads", nombre_archivo_seguro)
 
         # Guardar archivo físicamente
         archivo.save(ruta_archivo)
@@ -341,23 +368,14 @@ def importar():
         for columna in ["OC", "FACTURA", "DESTINO", "PROVEEDOR", "UNIDADES"]:
             df[columna] = df[columna].fillna("").astype(str).str.strip()
 
-            df["PROVEEDOR"] = df["PROVEEDOR"].str.split().str.join(" ")
-
-            df["OC"] = df["OC"].replace(
-                ["", "nan", "None"], "S/OC"
-            )  # reemplaza las OC vacias por S/OC
-            df["FACTURA"] = df["FACTURA"].replace(
-                ["", "nan", "None"], "S-G"
-            )  # reemplaza las FACTURAS vacias por S-G
-            df["UNIDADES"] = df["UNIDADES"].replace(
-                ["", "nan", "None"], "S/INFO"
-            )  # reemplaza las UNIDADES vacias por S/INFO
-            df["BULTOS"] = (
-                pd.to_numeric(df["BULTOS"], errors="coerce").fillna(0).astype(int)
-            )
-            df["UNIDADES"] = (
-                df["UNIDADES"].astype(str).str.replace(".0", "", regex=False)
-            )
+        df["PROVEEDOR"] = df["PROVEEDOR"].str.split().str.join(" ")
+        df["OC"] = df["OC"].replace(["", "nan", "None"], "S/OC")
+        df["FACTURA"] = df["FACTURA"].replace(["", "nan", "None"], "S-G")
+        df["UNIDADES"] = df["UNIDADES"].replace(["", "nan", "None"], "S/INFO")
+        df["BULTOS"] = (
+            pd.to_numeric(df["BULTOS"], errors="coerce").fillna(0).astype(int)
+        )
+        df["UNIDADES"] = df["UNIDADES"].astype(str).str.replace(".0", "", regex=False)
         guardados = 0
         duplicados = 0
         conflictos = 0
@@ -433,33 +451,31 @@ def importar():
                     unidades=fila["UNIDADES"],
                     tipo_carga="NACIONAL",
                     origen_archivo="NACIONAL",
-                    nombre_archivo=archivo.filename,
+                    nombre_archivo=nombre_archivo_seguro,
                     fecha_carga=datetime.now(),
                 )
                 db.session.add(nuevo)
                 guardados += 1
             except Exception as e:
                 errores += 1
-                lista_errores.append(f"""
-                                 OC: {fila["OC"],""} |
-                                 FACTURA: {fila["FACTURA"],""} |
-                                 ERROR: {str(e)}
-                                 """)
+                lista_errores.append(
+                    f"OC: {fila['OC']} | FACTURA: {fila['FACTURA']} | ERROR: {str(e)}"
+                )
             continue
 
         db.session.commit()
         cuadratura_existente = Cuadratura.query.filter_by(
-            nombre_archivo=archivo.filename
+            nombre_archivo=nombre_archivo_seguro
         ).first()
 
         if not cuadratura_existente:
             nueva_cuadratura = Cuadratura(
-                nombre_archivo=archivo.filename, fecha_carga_archivo=datetime.now()
+                nombre_archivo=nombre_archivo_seguro, fecha_carga_archivo=datetime.now()
             )
             db.session.add(nueva_cuadratura)
 
         historial = HistorialCarga(
-            nombre_archivo=archivo.filename,
+            nombre_archivo=nombre_archivo_seguro,
             registro_guardados=guardados,
             duplicados=duplicados,
             conflictos=conflictos,
