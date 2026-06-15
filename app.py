@@ -1,7 +1,9 @@
+from calendar import c
+
 from flask import Flask, render_template, request
 from sqlalchemy import distinct
 from config import Config
-from models import Consolidado, HistorialCarga, Proveedor, db
+from models import Consolidado, HistorialCarga, Proveedor, db, Cuadratura
 from datetime import datetime
 
 import pandas as pd
@@ -239,6 +241,40 @@ def actualizar_estado():
         <br><br>
         <a href="/registros">Volver al listado</a>
     """
+
+
+@app.route("/cuadraturas")
+def cuadraturas():
+
+    cuadraturas = Cuadratura.query.order_by(Cuadratura.id.desc()).all()
+
+    return render_template("cuadraturas.html", cuadraturas=cuadraturas)
+
+
+@app.route("/crear_cuadratura", methods=["GET", "POST"])
+def crear_cuadratura():
+    if request.method == "POST":
+        nueva = Cuadratura(
+            nombre_archivo=request.form["nombre_archivo"],
+            responsable=request.form["responsable"],
+            observacion=request.form["observacion"],
+        )
+        db.session.add(nueva)
+        db.session.commit()
+
+        return """
+        Cuadratura creada
+        <br><br>
+        <a href="/cuadraturas">Volver</a>
+        """
+    archivos = (
+        db.session.query(Consolidado.nombre_archivo)
+        .distinct()
+        .order_by(Consolidado.nombre_archivo.desc())
+        .all()
+    )
+
+    return render_template("crear_cuadratura.html", archivos=archivos)
 
 
 @app.route("/importar", methods=["GET", "POST"])

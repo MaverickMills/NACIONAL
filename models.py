@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from numpy import True_
-from datetime import datetime
+from datetime import datetime, UTC
+from sqlalchemy import Nullable
 
 # crear objeto base de datos
 db = SQLAlchemy()  # crea el administrador de base de datos
@@ -117,6 +118,18 @@ class Consolidado(db.Model):
 
     # fecha de despacho de la tienda
     fecha_despacho = db.Column(db.DateTime)
+
+
+class Cuadratura(db.Model):
+    __talblename__ = "cuadraturas"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_archivo = db.Column(db.String(255), nullable=False)
+    fecha_cuadratura = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    hora_inicio = db.Column(db.DateTime)
+    hora_fin = db.Column(db.DateTime)
+    responsable = db.Column(db.String(100))
+    observacion = db.Column(db.Text)
 
 
 class HistorialCarga(db.Model):

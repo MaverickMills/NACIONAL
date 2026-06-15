@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block contenido %}
+
+<h2>Cuadraturas</h2>
+<a href="/crear_cuadratura" class="btn btn-primary mb-3">Nueva Cuadratura</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Archivos</th>
+            <th>Responsable</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in cuadraturas %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre_archivo }}</td>
+            <td>{{ c.responsable }}</td>
+            <td>{{ c.fecha_cuadratura.strftime('%d-%m-%Y %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

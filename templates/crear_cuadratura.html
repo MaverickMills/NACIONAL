@@ -1,0 +1,38 @@
+{% extends "base.html"%}
+{% block contenido %}
+
+<h2>Nueva cuadratura</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label>Nombre Archivo</label>
+        <select
+            name="nombre_archivo"
+            class="form-select"
+            required
+        >
+            <option value=""> Seleccione Archivo</option>
+            {% for archivo in archivos %}
+            <option value="{{ archivo[0] }}"> {{ archivo[0] }}</option>
+            {% endfor %}
+
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Responsable</label>
+        <input
+            type="text"
+            name="responsable"
+            class="form-control"
+            required
+        >
+    </div>
+    <div class="mb-3">
+        <label>Observacion</label>
+        <textarea
+            name="observacion"
+            class="form-control"
+        ></textarea>
+    </div>
+    <button type="submit" class="btn- btn-success">Crear</button>
+</form>
+{% endblock%}
