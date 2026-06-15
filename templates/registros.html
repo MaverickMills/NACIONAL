@@ -64,9 +64,9 @@
                 <td>
                     {% if registro.fecha_despacho %}
                         {{ registro.fecha_despacho.strftime('%d-%m-%Y') }}
-                    {% else%}
+                    {% else %}
                         -
-                    <{% endif%}
+                    <{% endif %}
                 </td>
                 <td>
                     <a href="/editar/{{ registro.id }}" class="btn btn-warning btn-sm">Editar</a>
@@ -77,8 +77,31 @@
             {% endfor %}
         </tbody>
     </table>
+    <hr>
+    <div class="row">
+        <div class="col-md-3">
+            <laberl>Accion</laberl>
+            <select
+                name="nuevo_estado"
+                class="form-select"
+                required
+            >
+                <option value="">Seleccione</option>"
+                <option value="DESPACHADO">DESPACHADO</option>
+                <option value="PENDIENTE">PENDIENTE</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Fecha de Despacho</label>
+            <input
+                type="date"
+                name="fecha_despacho"
+                class="form-control"
+            >
+        </div>
+    </div>
     <br>
-    <button type="submit" class="btn btn-success">Marcar como DESPACHADO</button>
+    <button type="submit" class="btn btn-success">Aplicar Accion</button>
     </form>
 </div>
 {% endblock %}

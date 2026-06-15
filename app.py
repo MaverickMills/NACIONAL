@@ -205,13 +205,33 @@ def eliminar(id):
 @app.route("/actualizar_estado", methods=["POST"])
 def actualizar_estado():
     ids = request.form.getlist("ids")
+    nuevo_estado = request.form["nuevo_estado"]
+    fecha_despacho = request.form.get("fecha_despacho")
+
     actualizados = 0
+
+    if nuevo_estado == "DESPACHADO":
+        if not fecha_despacho:
+            return """
+            Debe indicar una fecha de despacho
+            <br><br>
+            <a href="/registros">Volver</a>
+            """
+        fecha = datetime.strptime(fecha_despacho, "%Y-%m-%d")
+
     for id_registro in ids:
         registro = Consolidado.query.get(int(id_registro))
 
-        if registro:
-            registro.estado = "DESPACHADO"
-            actualizados += 1
+        if not registro:
+            continue
+        if nuevo_estado == "DESPACHADO":
+            registro.estado = "PENDIENTE"
+            registro.fecha_despacho = fecha
+        else:
+            registro.estado = "PENDIENTE"
+            registro.fecha_despacho = None
+
+        actualizados += 1
     db.session.commit()
     return f"""
         <h2>Actualizacion completada</h2>
