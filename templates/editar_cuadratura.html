@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block contenido %}
+
+<h2>Editar Cuadratura</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label>Archivo</label>
+        <input
+            type="text"
+            class="form-control"
+            value="{{ cuadratura.nombre_archivo  }}"
+            readonly
+        >
+    </div>
+    <div class="mb-3">
+        <label>Responsable</label>
+        <input
+            type="text"
+            name="responsable"
+            class="form-control"
+            value="{{ cuadratura.responsable or '' }}"
+        >
+    </div>
+    <div class="mb-3">
+        <label>Observacion</label>
+        <textarea
+            name="observacion"
+            class="form-control"
+        >{{ cuadratura.observacion or ''}}</textarea>
+    </div>
+    <div class="mb-3">
+        <label>Estado</label>
+        <select
+            name="estado"
+            class="form-select"
+        >
+            <option
+                value="ABIERTA"
+                {% if cuadratura.estado == "ABIERTA" %}
+                selected
+                {% endif %}
+            >
+                ABIERTA
+            </option>
+            <option
+                value="CERRADA"
+                {% if cuadratura.estado == "CERRADA" %}
+                selected
+                {% endif %}
+            >
+                CERRADA
+            </option>
+    </select>
+    </div>
+    <button type="submit" class="btn btn-success">Guardar</button>
+</form>
+{% endblock %}

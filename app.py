@@ -175,7 +175,7 @@ def editar(id):
                 Error: Debe indicar una fecha de despacho.
                 <br><br>
 
-                <a href ="javascript:history.black()">
+                <a href ="javascript:history.back()">
                 Volver
                 </a>
                 """
@@ -227,7 +227,7 @@ def actualizar_estado():
         if not registro:
             continue
         if nuevo_estado == "DESPACHADO":
-            registro.estado = "PENDIENTE"
+            registro.estado = "DESPACHADO"
             registro.fecha_despacho = fecha
         else:
             registro.estado = "PENDIENTE"
@@ -251,30 +251,20 @@ def cuadraturas():
     return render_template("cuadraturas.html", cuadraturas=cuadraturas)
 
 
-@app.route("/crear_cuadratura", methods=["GET", "POST"])
-def crear_cuadratura():
+@app.route("/editar_cuadratura/<int:id>", methods=["GET", "POST"])
+def editar_cuadratura(id):
+    cuadratura = Cuadratura.query.get_or_404(id)
     if request.method == "POST":
-        nueva = Cuadratura(
-            nombre_archivo=request.form["nombre_archivo"],
-            responsable=request.form["responsable"],
-            observacion=request.form["observacion"],
-        )
-        db.session.add(nueva)
+        cuadratura.responsable = request.form["responsable"]
+        cuadratura.observacion = request.form["observacion"]
+        cuadratura.estado = request.form["estado"]
         db.session.commit()
-
         return """
-        Cuadratura creada
+        Cuadratura actualizada
         <br><br>
-        <a href="/cuadraturas">Volver</a>
+        <a href="/cuadraturas>Volver</a>
         """
-    archivos = (
-        db.session.query(Consolidado.nombre_archivo)
-        .distinct()
-        .order_by(Consolidado.nombre_archivo.desc())
-        .all()
-    )
-
-    return render_template("crear_cuadratura.html", archivos=archivos)
+    return render_template("editar_cuadratura.html", cuadratura=cuadratura)
 
 
 @app.route("/importar", methods=["GET", "POST"])
@@ -458,6 +448,16 @@ def importar():
             continue
 
         db.session.commit()
+        cuadratura_existente = Cuadratura.query.filter_by(
+            nombre_archivo=archivo.filename
+        ).first()
+
+        if not cuadratura_existente:
+            nueva_cuadratura = Cuadratura(
+                nombre_archivo=archivo.filename, fecha_carga_archivo=datetime.now()
+            )
+            db.session.add(nueva_cuadratura)
+
         historial = HistorialCarga(
             nombre_archivo=archivo.filename,
             registro_guardados=guardados,

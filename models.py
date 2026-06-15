@@ -121,7 +121,7 @@ class Consolidado(db.Model):
 
 
 class Cuadratura(db.Model):
-    __talblename__ = "cuadraturas"
+    __tablename__ = "cuadraturas"
 
     id = db.Column(db.Integer, primary_key=True)
     nombre_archivo = db.Column(db.String(255), nullable=False)
@@ -130,6 +130,8 @@ class Cuadratura(db.Model):
     hora_fin = db.Column(db.DateTime)
     responsable = db.Column(db.String(100))
     observacion = db.Column(db.Text)
+    estado = db.Column(db.String(20), default="ABIERTA")
+    fecha_carga_archivo = db.Column(db.DateTime)
 
 
 class HistorialCarga(db.Model):

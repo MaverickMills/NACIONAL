@@ -9,8 +9,11 @@
         <tr>
             <th>ID</th>
             <th>Archivos</th>
-            <th>Responsable</th>
+            <th>Estado</th>
             <th>Fecha</th>
+            <th>Fecha Carga Archivo</th>
+            <th>Acciones</th>
+            
         </tr>
     </thead>
     <tbody>
@@ -18,8 +21,17 @@
         <tr>
             <td>{{ c.id }}</td>
             <td>{{ c.nombre_archivo }}</td>
-            <td>{{ c.responsable }}</td>
+            <td>{{ c.estado }}</td>
             <td>{{ c.fecha_cuadratura.strftime('%d-%m-%Y %H:%M') }}</td>
+            <td>{% if c.fecha_carga_archivo %}
+                    {{ c.fecha_carga_archivo.strftime('%d-%m-%Y %H:%M') }}
+                {% else %}
+                    -
+                {% endif %}
+
+            </td>
+            <td><a href="/editar_cuadratura/{{ c.id }}" class="btn btn-warning btn.sm">Editar</a></td>
+            
         </tr>
         {% endfor %}
     </tbody>
